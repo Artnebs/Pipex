@@ -6,48 +6,33 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+           #
 #    Created: 2024/12/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2024/12/24 00:27:39 by anebbou          ###   ########.fr        #
+#    Updated: 2025/01/17 20:00:00 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-# Program Names
-NAME = 
-BONUS = 
+# Program Name
+NAME = pipex
 
 # Libft Setup
-LIBFT_DIR = Libft_GNL_Printf
+LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
 
-# Source Files for push_swap
-SRCS = 
+# Source Files
+SRCS = utils.c redirection.c pipex.c parsing.c multiple_pipes.c main.c here_doc.c execute.c
 OBJS = $(SRCS:.c=.o)
-
-# Source Files for checker (bonus)
-BONUS_SRCS = 
-BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
 # Compiler and Flags
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -I. -I$(LIBFT_DIR)/includes
 
-# Silence unnecessary make outputs
-MAKEFLAGS += --silent
-
 # Default Rule
 all: $(LIBFT) $(NAME)
 
-# Build push_swap executable
+# Build the main executable
 $(NAME): $(OBJS)
 	@echo "Linking $(NAME)..."
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -L$(LIBFT_DIR) -lft
-
-# Build checker (bonus) executable
-bonus: $(LIBFT) $(BONUS)
-
-$(BONUS): $(BONUS_OBJS)
-	@echo "Linking $(BONUS)..."
-	$(CC) $(CFLAGS) $(BONUS_OBJS) -o $(BONUS) -L$(LIBFT_DIR) -lft
 
 # Compile object files
 %.o: %.c
@@ -66,22 +51,22 @@ $(LIBFT):
 # Clean object files
 clean:
 	@echo "Cleaning object files..."
-	rm -f $(OBJS) $(BONUS_OBJS)
+	rm -f $(OBJS)
 	@if [ -d "$(LIBFT_DIR)" ]; then \
 		make -C $(LIBFT_DIR) clean; \
 	fi
 
-# Clean all files
+# Clean everything
 fclean: clean
-	@echo "Cleaning $(NAME), $(BONUS), and Libft..."
-	rm -f $(NAME) $(BONUS)
+	@echo "Cleaning $(NAME) and Libft..."
+	rm -f $(NAME)
 	@if [ -d "$(LIBFT_DIR)" ]; then \
 		rm -rf $(LIBFT_DIR); \
-		echo "Deleted Libft_GNL_Printf directory."; \
+		echo "Deleted Libft directory."; \
 	fi
 
 # Rebuild everything
 re: fclean all
 
 # Ensure makefile targets are not interpreted as filenames
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re
