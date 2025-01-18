@@ -1,0 +1,3 @@
+Parsed Command: cat
+Parsed Command: wc
+3

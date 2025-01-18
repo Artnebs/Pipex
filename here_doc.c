@@ -6,20 +6,29 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 18:12:36 by anebbou           #+#    #+#             */
-/*   Updated: 2025/01/17 18:46:37 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/01/18 14:11:26 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// Handles the heredoc feature
+/**
+ * handle_here_doc - Handles the here_doc feature.
+ * @limiter: String that marks the end of user input.
+ * @cmds: Array of command strings.
+ * @cmd_count: Number of commands.
+ * @file: Output file to append the result.
+ * @envp: Array of environment variables.
+ *
+ * Reads input from the user until the limiter is encountered, then executes
+ * the provided commands, passing the input via pipes.
+ */
 void handle_here_doc(char *limiter, char **cmds, int cmd_count, char *file, char **envp)
 {
 	int pipefd[2];
 	pid_t pid;
 	char *line;
 
-	// Create a pipe for heredoc input
 	if (pipe(pipefd) < 0)
 	{
 		perror("Pipe creation failed");
@@ -67,11 +76,10 @@ void handle_here_doc(char *limiter, char **cmds, int cmd_count, char *file, char
 		close(fd_out);
 		char **cmd_args = parse_command(cmds[1]);
 		execute_command(cmd_args, envp);
-		ft_free_split(cmd_args); // Free the allocated memory
+		ft_free_split(cmd_args); // Free allocated memory
 	}
 	else
 	{
-		// Use multiple pipes to handle intermediate commands
 		execute_multiple_pipes(NULL, file, cmds, cmd_count, envp);
 	}
 	close(pipefd[0]);

@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+           #
 #    Created: 2024/12/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/01/17 20:00:00 by anebbou          ###   ########.fr        #
+#    Updated: 2025/01/18 13:10:50 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,12 +14,12 @@
 NAME = pipex
 
 # Libft Setup
-LIBFT_DIR = libft
+LIBFT_DIR = Libft_GNL_Printf
 LIBFT = $(LIBFT_DIR)/libft.a
 LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
 
 # Source Files
-SRCS = utils.c redirection.c pipex.c parsing.c multiple_pipes.c main.c here_doc.c execute.c
+SRCS = redirection.c parsing.c multiple_pipes.c main.c here_doc.c execute.c
 OBJS = $(SRCS:.c=.o)
 
 # Compiler and Flags
@@ -56,13 +56,13 @@ clean:
 		make -C $(LIBFT_DIR) clean; \
 	fi
 
-# Clean everything
+# Clean everything, including the Libft directory
 fclean: clean
 	@echo "Cleaning $(NAME) and Libft..."
 	rm -f $(NAME)
 	@if [ -d "$(LIBFT_DIR)" ]; then \
+		echo "Forcefully deleting the Libft directory..."; \
 		rm -rf $(LIBFT_DIR); \
-		echo "Deleted Libft directory."; \
 	fi
 
 # Rebuild everything
