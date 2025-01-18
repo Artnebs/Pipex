@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:23:54 by anebbou           #+#    #+#             */
-/*   Updated: 2025/01/18 14:22:15 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/01/18 15:18:53 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
  *
  * Creates a pipe to connect the output of the first command to the input
  * of the second command. Handles child processes for execution.
+ * This is a simplified version for exactly two commands.
  */
 void execute_pipeline(char **cmd1, char **cmd2, char **envp)
 {
@@ -40,7 +41,7 @@ void execute_pipeline(char **cmd1, char **cmd2, char **envp)
 	}
 	if (pid1 == 0)
 	{
-		// First child: Executes cmd1
+		/* First child: Executes cmd1 */
 		dup2(pipe_fd[1], STDOUT_FILENO); // Redirect stdout to pipe write-end
 		close(pipe_fd[0]);				 // Close unused read-end
 		close(pipe_fd[1]);				 // Close write-end after duplication
@@ -55,14 +56,14 @@ void execute_pipeline(char **cmd1, char **cmd2, char **envp)
 	}
 	if (pid2 == 0)
 	{
-		// Second child: Executes cmd2
+		/* Second child: Executes cmd2 */
 		dup2(pipe_fd[0], STDIN_FILENO); // Redirect stdin to pipe read-end
 		close(pipe_fd[1]);				// Close unused write-end
 		close(pipe_fd[0]);				// Close read-end after duplication
 		execute_command(cmd2, envp);
 	}
 
-	// Parent process: Close all pipe ends and wait for children
+	/* Parent process: Close all pipe ends and wait for children */
 	close(pipe_fd[0]);
 	close(pipe_fd[1]);
 	waitpid(pid1, NULL, 0);
@@ -80,15 +81,19 @@ void execute_pipeline(char **cmd1, char **cmd2, char **envp)
 void execute_command(char **cmd, char **envp)
 {
 	char *cmd_path = find_command_path(cmd[0], envp);
+
 	if (!cmd_path)
 	{
-		ft_printf("Execution failed: Command not found: %s\n", cmd[0]);
+		/* [CHANGED] Print error to stderr (fd=2) instead of stdout */
+		ft_putstr_fd("Execution failed: Command not found: ", 2);
+		ft_putstr_fd(cmd[0], 2);
+		ft_putstr_fd("\n", 2);
 		ft_free_split(cmd);
 		exit(EXIT_FAILURE);
 	}
 	if (execve(cmd_path, cmd, envp) < 0)
 	{
-		perror("Execution failed");
+		perror("Execution failed"); // This automatically goes to stderr
 		ft_free_split(cmd);
 		free(cmd_path);
 		exit(EXIT_FAILURE);

@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:23:41 by anebbou           #+#    #+#             */
-/*   Updated: 2025/01/18 14:22:30 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/01/18 15:20:17 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,11 @@ char **parse_command(char *cmd)
 	char **split_cmd = ft_split(cmd, ' ');
 	if (!split_cmd || !split_cmd[0])
 	{
-		ft_printf("Error: Invalid command: %s\n", cmd);
+		ft_printf("Error: Invalid or empty command: '%s'\n", cmd);
 		if (split_cmd)
 			ft_free_split(split_cmd);
 		exit(EXIT_FAILURE);
 	}
-	// Debugging: Print parsed command
-	ft_printf("Parsed Command: %s\n", split_cmd[0]);
 	return (split_cmd);
 }
 
@@ -73,41 +71,67 @@ char **parse_command(char *cmd)
  */
 char *find_command_path(char *cmd, char **envp)
 {
-	char **paths = NULL;
-	char *path_var = NULL;
-	char *full_path = NULL;
+	char **paths;
+	char *path_var;
 	int i;
 
-	// Find the PATH variable in envp
-	for (i = 0; envp[i]; i++)
+	/* If cmd has a slash, user might have given an absolute/relative path. */
+	if (ft_strchr(cmd, '/')) // [CHANGED] use ft_strchr
+	{
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd)); // [CHANGED] use ft_strdup
+		return (NULL);
+	}
+
+	/* Locate PATH in envp */
+	path_var = NULL;
+	i = 0;
+	while (envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
 		{
-			path_var = envp[i] + 5; // Skip "PATH="
+			path_var = envp[i] + 5; // skip "PATH="
 			break;
 		}
+		i++;
 	}
 	if (!path_var)
 		return (NULL);
 
-	// Split PATH into directories
+	/* Split PATH into directories */
 	paths = ft_split(path_var, ':');
 	if (!paths)
 		return (NULL);
 
-	// Check each directory for the command
-	for (i = 0; paths[i]; i++)
+	/* Check each directory for the command */
+	i = 0;
+	while (paths[i])
 	{
-		full_path = ft_strjoin(paths[i], "/");
-		char *temp = full_path;
-		full_path = ft_strjoin(full_path, cmd);
-		free(temp);
-		if (access(full_path, X_OK) == 0) // Check if command is executable
+		char *tmp;
+		char *full;
+
+		/* build "dir + '/'" */
+		tmp = ft_strjoin(paths[i], "/"); // [CHANGED] ft_strjoin
+		if (!tmp)
 		{
 			ft_free_split(paths);
-			return (full_path);
+			return (NULL);
 		}
-		free(full_path);
+		/* build the full path "tmp + cmd" */
+		full = ft_strjoin(tmp, cmd); // [CHANGED] ft_strjoin
+		free(tmp);
+		if (!full)
+		{
+			ft_free_split(paths);
+			return (NULL);
+		}
+		if (access(full, X_OK) == 0)
+		{
+			ft_free_split(paths);
+			return (full);
+		}
+		free(full);
+		i++;
 	}
 	ft_free_split(paths);
 	return (NULL);

@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 17:03:55 by anebbou           #+#    #+#             */
-/*   Updated: 2025/01/18 14:13:05 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/01/18 15:20:24 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,11 @@
 /**
  * setup_redirection - Sets up file redirection for input and output.
  * @file1: Input file to read from.
- * @file2: Output file to write to.
+ * @file2: Output file to write to (trunc).
  *
  * Opens the input and output files and redirects the standard input
  * and output to these files using dup2. Exits the program on failure.
+ * This is used only in the simple 2-command scenario.
  */
 void setup_redirection(char *file1, char *file2)
 {
