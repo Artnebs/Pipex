@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 15:23:54 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 12:18:05 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/07 16:15:13 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,8 @@ void	execute_command(char **cmd, char **envp)
 		ft_free_split(cmd);
 		exit(EXIT_FAILURE);
 	}
-	if (execve(cmd_path, cmd, envp) < 0)
-	{
-		perror("Execution failed");
-		ft_free_split(cmd);
-		free(cmd_path);
-		exit(EXIT_FAILURE);
-	}
-	free(cmd_path);
+	execve(cmd_path, cmd, envp);
+	perror("Execution failed");
+	ft_free_split(cmd);
+	exit(EXIT_FAILURE);
 }

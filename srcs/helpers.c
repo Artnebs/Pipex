@@ -6,19 +6,19 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 21:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 12:17:33 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/07 17:00:29 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void close_pipes(int pipe_fd[2])
+void	close_pipes(int pipe_fd[2])
 {
 	close(pipe_fd[0]);
 	close(pipe_fd[1]);
 }
 
-void create_pipe(int pipe_fd[2])
+void	create_pipe(int pipe_fd[2])
 {
 	if (pipe(pipe_fd) < 0)
 	{
@@ -27,7 +27,7 @@ void create_pipe(int pipe_fd[2])
 	}
 }
 
-void create_fork(pid_t *pid)
+void	create_fork(pid_t *pid)
 {
 	*pid = fork();
 	if (*pid < 0)
@@ -37,9 +37,9 @@ void create_fork(pid_t *pid)
 	}
 }
 
-void redirect_input(char *file1)
+void	redirect_input(char *file1)
 {
-	int fd_in;
+	int	fd_in;
 
 	fd_in = open(file1, O_RDONLY);
 	if (fd_in < 0)
@@ -56,9 +56,9 @@ void redirect_input(char *file1)
 	close(fd_in);
 }
 
-void redirect_output(char *file2)
+void	redirect_output(char *file2)
 {
-	int fd_out;
+	int	fd_out;
 
 	fd_out = open(file2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd_out < 0)

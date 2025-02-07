@@ -1,19 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   redirection.c                                      :+:      :+:    :+:   */
+/*   multiple_pipes_helpers_bonus.c                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/07 15:23:54 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 12:06:25 by anebbou          ###   ########.fr       */
+/*   Created: 2025/01/17 18:10:20 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/07 17:03:08 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void setup_redirection(char *file1, char *file2)
+void	fork_and_execute(int i, int cmd_count, int pipes[][2], pid_t *pids,
+							char **cmds, char **envp)
 {
-    redirect_input(file1);
-    redirect_output(file2);
+	create_fork(&pids[i]);
+	if (pids[i] == 0)
+		execute_child(i, cmd_count, pipes, cmds, envp);
+}
+
+void	fork_processes(int cmd_count, int pipes[][2], pid_t *pids, char **cmds,
+						char **envp)
+{
+	int	i;
+
+	i = 0;
+	while (i < cmd_count)
+	{
+		fork_and_execute(i, cmd_count, pipes, pids, cmds, envp);
+		i++;
+	}
 }
