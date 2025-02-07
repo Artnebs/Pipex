@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+           #
 #    Created: 2024/12/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/01/18 13:10:50 by anebbou          ###   ########.fr        #
+#    Updated: 2025/01/18 13:45:00 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
 
 # Source Files
-SRCS = redirection.c parsing.c multiple_pipes.c main.c here_doc.c execute.c
+SRCS = redirection.c parsing.c multiple_pipes.c main.c here_doc.c execute.c helpers.c
 OBJS = $(SRCS:.c=.o)
 
 # Compiler and Flags
@@ -46,7 +46,7 @@ $(LIBFT):
 		git clone $(LIBFT_REPO) $(LIBFT_DIR); \
 	fi
 	@echo "Building Libft library..."
-	@make -C $(LIBFT_DIR)
+	@make -C $(LIBFT_DIR) all
 
 # Clean object files
 clean:
@@ -56,13 +56,17 @@ clean:
 		make -C $(LIBFT_DIR) clean; \
 	fi
 
-# Clean everything, including the Libft directory
+# Full clean, removing Libft, .txt files, and test_files folder
 fclean: clean
-	@echo "Cleaning $(NAME) and Libft..."
-	rm -f $(NAME)
+	@echo "Cleaning $(NAME), .txt files, and test_files directory..."
+	rm -f $(NAME) *.txt
 	@if [ -d "$(LIBFT_DIR)" ]; then \
-		echo "Forcefully deleting the Libft directory..."; \
+		echo "Removing Libft directory..."; \
 		rm -rf $(LIBFT_DIR); \
+	fi
+	@if [ -d "test_files" ]; then \
+		echo "Removing test_files directory..."; \
+		rm -rf test_files; \
 	fi
 
 # Rebuild everything
