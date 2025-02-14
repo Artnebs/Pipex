@@ -1,37 +1,11 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parsing.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/07 15:23:41 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 16:19:16 by anebbou          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "pipex.h"
 
-void	validate_files(char *file1, char *file2)
+char **parse_command(char *cmd_str)
 {
-	if (access(file1, F_OK) != 0)
-	{
-		perror("Error: Input file does not exist");
-		exit(EXIT_FAILURE);
-	}
-	if (access(file2, F_OK) == 0 && access(file2, W_OK) != 0)
-	{
-		perror("Error: Output file is not writable");
-		exit(EXIT_FAILURE);
-	}
-}
+	char **cmd_args;
 
-char	**parse_command(char *cmd)
-{
-	char	**cmd_args;
-
-	cmd_args = ft_split(cmd, ' ');
-	if (!cmd_args)
+	cmd_args = ft_split(cmd_str, ' ');
+	if (cmd_args == NULL)
 	{
 		perror("Error: Command parsing failed");
 		exit(EXIT_FAILURE);
@@ -39,27 +13,27 @@ char	**parse_command(char *cmd)
 	return (cmd_args);
 }
 
-char	*find_command_path(char *cmd, char **envp)
+char *find_command_path(char *cmd_name)
 {
-	char	**paths;
-	char	*cmd_path;
-	int		i;
+	char **paths;
+	char *full_path;
+	int idx;
 
 	paths = ft_split(getenv("PATH"), ':');
-	if (!paths)
+	if (paths == NULL)
 		return (NULL);
-	i = 0;
-	while (paths[i])
+	idx = 0;
+	while (paths[idx])
 	{
-		cmd_path = ft_strjoin(paths[i], "/");
-		cmd_path = ft_strjoin(cmd_path, cmd);
-		if (access(cmd_path, X_OK) == 0)
+		full_path = ft_strjoin(paths[idx], "/");
+		full_path = ft_strjoin_free(full_path, cmd_name);
+		if (access(full_path, X_OK) == 0)
 		{
 			ft_free_split(paths);
-			return (cmd_path);
+			return (full_path);
 		}
-		free(cmd_path);
-		i++;
+		free(full_path);
+		idx = idx + 1;
 	}
 	ft_free_split(paths);
 	return (NULL);

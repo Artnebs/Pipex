@@ -1,55 +1,43 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   multiple_pipes_bonus.c                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/17 18:10:20 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 17:02:55 by anebbou          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "pipex.h"
 
-static void	redirect_input_output(int i, int c, int p[][2])
+static pid_t *allocate_pids(int count)
 {
-	if (i == 0)
-		redirect_input(f1);
-	else
-		dup2(p[i - 1][0], STDIN_FILENO);
-	if (i == c - 1)
-		redirect_output(f2);
-	else
-		dup2(p[i][1], STDOUT_FILENO);
+	pid_t *pids;
+
+	pids = (pid_t *)malloc(sizeof(pid_t) * count);
+	if (pids == NULL)
+	{
+		perror("Memory allocation failed");
+		exit(EXIT_FAILURE);
+	}
+	return (pids);
 }
 
-static void	execute_child(int i, int c, int p[][2], char **cmds, char **envp)
+void execute_multiple_pipes(t_multi_pipes multi)
 {
-	redirect_input_output(i, c, p);
-	close_all_pipes(p, c - 1);
-	execute_command(parse_command(cmds[i]), envp);
-}
+	int pipes[multi.cmd_count - 1][2];
+	pid_t *pids;
+	int i;
 
-void	execute_multiple_pipes(char *file1, char *file2, char **cmds,
-							int cmd_count, char **envp)
-{
-	int		pipes[cmd_count - 1][2];
-	pid_t	pids[cmd_count];
-	int		i;
-
+	pids = allocate_pids(multi.cmd_count);
 	i = 0;
-	while (i < cmd_count - 1)
+	while (i < multi.cmd_count - 1)
 	{
-		create_pipe(pipes[i]);
-		i++;
+		if (pipe(pipes[i]) == -1)
+		{
+			perror("Pipe creation failed");
+			exit(EXIT_FAILURE);
+		}
+		i = i + 1;
 	}
-	fork_processes(cmd_count, pipes, pids, cmds, envp);
-	close_all_pipes(pipes, cmd_count - 1);
+	fork_processes(multi, pipes, pids);
 	i = 0;
-	while (i < cmd_count)
+	while (i < multi.cmd_count - 1)
 	{
-		waitpid(pids[i], NULL, 0);
-		i++;
+		close(pipes[i][0]);
+		close(pipes[i][1]);
+		i = i + 1;
 	}
+	wait_for_all_children(pids, multi.cmd_count);
+	free(pids);
 }

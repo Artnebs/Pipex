@@ -1,26 +1,73 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   helpers2.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/18 21:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/07 17:00:52 by anebbou          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "pipex.h"
 
-void	close_all_pipes(int pipes[][2], int count)
+void close_all_pipes(int **pipes_array, int count)
 {
-	int	i;
+	int index;
 
-	i = 0;
-	while (i < count)
+	index = 0;
+	while (index < count)
 	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		i++;
+		close(pipes_array[index][0]);
+		close(pipes_array[index][1]);
+		index = index + 1;
 	}
+}
+
+/* allocate_each_pipe is a helper for allocate_pipes */
+void allocate_each_pipe(int **pipes_array, int count)
+{
+	int index;
+
+	index = 0;
+	while (index < count)
+	{
+		pipes_array[index] = malloc(sizeof(int) * 2);
+		if (pipes_array[index] == NULL)
+			return;
+		create_pipe(pipes_array[index]);
+		index = index + 1;
+	}
+}
+
+int **allocate_pipes(int count)
+{
+	int **pipes_array;
+
+	pipes_array = malloc(sizeof(int *) * (count - 1));
+	if (pipes_array == NULL)
+		return (NULL);
+	allocate_each_pipe(pipes_array, count - 1);
+	return (pipes_array);
+}
+
+void free_pipes(int **pipes_array, int count)
+{
+	int index;
+
+	index = 0;
+	while (index < count - 1)
+	{
+		free(pipes_array[index]);
+		index = index + 1;
+	}
+	free(pipes_array);
+}
+
+char *ft_strjoin_free(char *s1, const char *s2)
+{
+	char *joined_str;
+	size_t len1;
+	size_t len2;
+
+	if (s1 == NULL || s2 == NULL)
+		return (NULL);
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	joined_str = malloc(len1 + len2 + 1);
+	if (joined_str == NULL)
+		return (NULL);
+	ft_strlcpy(joined_str, s1, len1 + 1);
+	ft_strlcat(joined_str, s2, len1 + len2 + 1);
+	free(s1);
+	return (joined_str);
 }

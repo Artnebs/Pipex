@@ -3,86 +3,110 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        #
-#                                                 +#+#+#+#+#+   +#+           #
-#    Created: 2024/12/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/01/18 13:45:00 by anebbou          ###   ########.fr        #
+#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/02/09 17:20:13 by anebbou           #+#    #+#              #
+#    Updated: 2025/02/14 11:29:37 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-# Program Name
-NAME = pipex
-BONUS_NAME = pipex_bonus
+# ------------------------------ VARIABLES ----------------------------------- #
+
+# Program Names
+NAME            = pipex
+NAME_BONUS      = pipex_bonus
+
+# Directories
+SRC_DIR         = srcs
+BONUS_DIR       = bonus
+LIBFT_DIR       = Libft_GNL_Printf
 
 # Libft Setup
-LIBFT_DIR = Libft_GNL_Printf
-LIBFT = $(LIBFT_DIR)/libft.a
-LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
-
-# Source Files
-SRCS = srcs/execute.c srcs/helpers.c srcs/helpers2.c srcs/main.c srcs/parsing.c srcs/redirection.c
-OBJS = $(SRCS:.c=.o)
-
-# Bonus Source Files
-BONUS_SRCS = bonus/here_doc_bonus.c bonus/multiple_pipes_bonus.c bonus/multiple_pipes_helpers_bonus.c
-BONUS_OBJS = $(BONUS_SRCS:.c=.o)
+LIBFT           = $(LIBFT_DIR)/libft.a
+LIBFT_REPO      = https://github.com/Artnebs/Libft_GNL_Printf.git
 
 # Compiler and Flags
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Iincludes -I$(LIBFT_DIR)/includes
+CC              = gcc
+CFLAGS          = -Wall -Wextra -Werror
+INCLUDES        = -Iincludes -I$(LIBFT_DIR)/includes
 
-# Default Rule
+# Mandatory Sources
+SRCS_MAND       = $(SRC_DIR)/main.c \
+                  $(SRC_DIR)/parsing.c \
+                  $(SRC_DIR)/execute.c \
+                  $(SRC_DIR)/helpers.c \
+                  $(SRC_DIR)/helpers2.c \
+                  $(SRC_DIR)/redirection.c
+
+OBJS_MAND       = $(SRCS_MAND:.c=.o)
+
+# Bonus Sources (Only compiled in bonus mode)
+SRCS_BONUS      = $(BONUS_DIR)/here_doc_bonus.c \
+                  $(BONUS_DIR)/multiple_pipes_bonus.c \
+				  $(BONUS_DIR)/multiple_pipes_helpers_bonus.c \
+
+OBJS_BONUS      = $(SRCS_BONUS:.c=.o)
+
+# ------------------------------ TARGETS ------------------------------------- #
+
+# Default Rule: build mandatory
 all: $(LIBFT) $(NAME)
 
-# Build the main executable
-$(NAME): $(OBJS)
-    @echo "Linking $(NAME)..."
-    $(CC) $(CFLAGS) $(OBJS) -o $(NAME) -L$(LIBFT_DIR) -lft
+# Build the main executable from mandatory object files
+$(NAME): $(OBJS_MAND)
+	@echo "Linking $(NAME)..."
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS_MAND) -L$(LIBFT_DIR) -lft -o $(NAME)
+	@echo "Build complete!"
 
-# Build the bonus executable
-bonus: $(LIBFT) $(BONUS_NAME)
+# Bonus Rule: build both mandatory and bonus separately
+bonus: $(LIBFT) $(NAME_BONUS)
 
-$(BONUS_NAME): $(BONUS_OBJS)
-    @echo "Linking $(BONUS_NAME)..."
-    $(CC) $(CFLAGS) $(BONUS_OBJS) -o $(BONUS_NAME) -L$(LIBFT_DIR) -lft
+$(NAME_BONUS): $(OBJS_MAND) $(OBJS_BONUS)
+	@echo "Linking $(NAME_BONUS) (with bonus)..."
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS_MAND) $(OBJS_BONUS) \
+		-L$(LIBFT_DIR) -lft -o $(NAME_BONUS)
+	@echo "Build complete (with bonus)!"
 
-# Compile object files
-%.o: %.c
-    @echo "Compiling $<..."
-    $(CC) $(CFLAGS) -c $< -o $@
+# Compile object files for mandatory
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Build Libft
+# Compile object files for bonus
+$(BONUS_DIR)/%.o: $(BONUS_DIR)/%.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build Libft if not present
 $(LIBFT):
-    @if [ ! -d "$(LIBFT_DIR)" ]; then \
-        echo "Cloning Libft repository..."; \
-        git clone $(LIBFT_REPO) $(LIBFT_DIR); \
-    fi
-    @echo "Building Libft library..."
-    @make -C $(LIBFT_DIR) all
+	@if [ ! -d "$(LIBFT_DIR)" ]; then \
+		echo "Cloning Libft repository..."; \
+		git clone $(LIBFT_REPO) $(LIBFT_DIR); \
+	fi
+	@echo "Building Libft library..."
+	@$(MAKE) -C $(LIBFT_DIR)
 
 # Clean object files
 clean:
-    @echo "Cleaning object files..."
-    rm -f $(OBJS) $(BONUS_OBJS)
-    @if [ -d "$(LIBFT_DIR)" ]; then \
-        make -C $(LIBFT_DIR) clean; \
-    fi
+	@echo "Cleaning object files..."
+	rm -f $(OBJS_MAND) $(OBJS_BONUS)
+	@if [ -d "$(LIBFT_DIR)" ]; then \
+		$(MAKE) -C $(LIBFT_DIR) clean; \
+	fi
 
-# Full clean, removing Libft, .txt files, and test_files folder
+# Full clean, removing program and additional files
 fclean: clean
-    @echo "Cleaning $(NAME), $(BONUS_NAME), .txt files, and test_files directory..."
-    rm -f $(NAME) $(BONUS_NAME) *.txt
-    @if [ -d "$(LIBFT_DIR)" ]; then \
-        echo "Removing Libft directory..."; \
-        rm -rf $(LIBFT_DIR); \
-    fi
-    @if [ -d "test_files" ]; then \
-        echo "Removing test_files directory..."; \
-        rm -rf test_files; \
-    fi
+	@echo "Removing $(NAME) and $(NAME_BONUS) binaries..."
+	rm -f $(NAME) $(NAME_BONUS)
+	@if [ -d "test_files" ]; then \
+		echo "Removing test_files/ directory..."; \
+		rm -rf test_files; \
+	fi
+	@echo "Removing Libft directory (optional)..."
+	rm -rf $(LIBFT_DIR)
 
 # Rebuild everything
 re: fclean all
 
-# Ensure makefile targets are not interpreted as filenames
+# Ensure makefile targets are not interpreted as files
 .PHONY: all clean fclean re bonus

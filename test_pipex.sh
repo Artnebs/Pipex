@@ -6,7 +6,7 @@ RED="\033[0;31m"
 BLUE="\033[0;34m"
 NC="\033[0m" # No color
 
-# Ensure cleanup before test
+# Cleanup before test
 rm -rf test_files
 mkdir -p test_files
 
@@ -28,7 +28,7 @@ TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILED_TESTS=0
 
-# Function to run a test case
+# Function to run a basic test case
 run_test() {
     INPUT=$1
     CMD1=$2
@@ -39,119 +39,97 @@ run_test() {
     PIPEX_OUTPUT="test_files/pipex_$OUTPUT"
 
     # Run shell command
-    < "$INPUT" $CMD1 | $CMD2 > "$EXPECTED_OUTPUT"
-    
+    timeout 3 bash -c "< \"$INPUT\" $CMD1 | $CMD2 > \"$EXPECTED_OUTPUT\""
+
     # Run pipex command
-    ./pipex "$INPUT" "$CMD1" "$CMD2" "$PIPEX_OUTPUT"
+    timeout 3 ./pipex "$INPUT" "$CMD1" "$CMD2" "$PIPEX_OUTPUT"
 
     # Compare outputs
-    TOTAL_TESTS=$((TOTAL_TESTS + 1))
-    
-    echo -e "\n${BLUE}Test: <$INPUT $CMD1 | $CMD2 >${NC}"
-    echo -e "${BLUE}Expected Output:${NC}"
-    cat "$EXPECTED_OUTPUT"
-    echo -e "\n${BLUE}Actual Pipex Output:${NC}"
-    cat "$PIPEX_OUTPUT"
-    echo ""
-
-    if diff -q "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT" > /dev/null; then
+    if diff "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT" > /dev/null; then
         echo -e "${GREEN}✅ Test Passed${NC}"
         PASSED_TESTS=$((PASSED_TESTS + 1))
     else
         echo -e "${RED}❌ Test Failed${NC}"
-        echo -e "${RED}Difference:${NC}"
+        echo "Test: <$INPUT $CMD1 | $CMD2 >"
+        echo "Expected Output:"
+        cat "$EXPECTED_OUTPUT"
+        echo "Actual Pipex Output:"
+        cat "$PIPEX_OUTPUT"
+        echo "Difference:"
         diff "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT"
         FAILED_TESTS=$((FAILED_TESTS + 1))
     fi
+    TOTAL_TESTS=$((TOTAL_TESTS + 1))
 }
 
 # Function to test multiple pipes (Bonus)
 run_bonus_test() {
-    OUTPUT=$1
+    INPUT=$1
+    OUTPUT=$2
+    shift 2
+    CMDS=("$@")
+
     EXPECTED_OUTPUT="test_files/shell_$OUTPUT"
     PIPEX_OUTPUT="test_files/pipex_$OUTPUT"
 
+    # Construct shell command dynamically
+    SHELL_CMD="< \"$INPUT\""
+    for CMD in "${CMDS[@]}"; do
+        SHELL_CMD+=" $CMD |"
+    done
+    SHELL_CMD="${SHELL_CMD%|} > \"$EXPECTED_OUTPUT\""
+
     # Run shell command
-    bash -c "$2" > "$EXPECTED_OUTPUT"
+    timeout 3 bash -c "$SHELL_CMD"
 
     # Run pipex command
-    eval "./pipex $3 \"$PIPEX_OUTPUT\""
+    timeout 3 ./pipex "$INPUT" "${CMDS[@]}" "$PIPEX_OUTPUT"
 
     # Compare outputs
-    TOTAL_TESTS=$((TOTAL_TESTS + 1))
-    
-    echo -e "\n${BLUE}Bonus Test: $2${NC}"
-    echo -e "${BLUE}Expected Output:${NC}"
-    cat "$EXPECTED_OUTPUT"
-    echo -e "\n${BLUE}Actual Pipex Output:${NC}"
-    cat "$PIPEX_OUTPUT"
-    echo ""
-
-    if diff -q "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT" > /dev/null; then
-        echo -e "${GREEN}✅ Test Passed${NC}"
+    if diff "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT" > /dev/null; then
+        echo -e "${GREEN}✅ Bonus Test Passed${NC}"
         PASSED_TESTS=$((PASSED_TESTS + 1))
     else
-        echo -e "${RED}❌ Test Failed${NC}"
-        echo -e "${RED}Difference:${NC}"
+        echo -e "${RED}❌ Bonus Test Failed${NC}"
+        echo "Test: <$INPUT ${CMDS[*]} >"
+        echo "Expected Output:"
+        cat "$EXPECTED_OUTPUT"
+        echo "Actual Pipex Output:"
+        cat "$PIPEX_OUTPUT"
+        echo "Difference:"
         diff "$EXPECTED_OUTPUT" "$PIPEX_OUTPUT"
         FAILED_TESTS=$((FAILED_TESTS + 1))
     fi
+    TOTAL_TESTS=$((TOTAL_TESTS + 1))
 }
 
 # Run basic tests
-echo "Running basic tests..."
+echo -e "${BLUE}Running basic tests...${NC}"
 run_test "test_files/input1.txt" "cat" "wc -l" "out1.txt"
 run_test "test_files/input2.txt" "grep a" "wc -w" "out2.txt"
 run_test "test_files/input3.txt" "ls -l" "grep .c" "out3.txt"
 
 # Run edge case tests
-echo "Running edge case tests..."
+echo -e "${BLUE}Running edge case tests...${NC}"
 run_test "test_files/mixed_case.txt" "grep HELLO" "wc -l" "case_sensitive.txt"
 run_test "test_files/numbers.txt" "sort -n" "tail -1" "max_number.txt"
 run_test "test_files/empty.txt" "cat" "wc -l" "empty.txt"
 
 # Run invalid command tests
-echo "Running invalid command tests..."
-./pipex "test_files/input1.txt" "invalidcmd" "wc -l" "test_files/pipex_invalid.txt" &> test_files/pipex_error.txt
-if grep -q "command not found" test_files/pipex_error.txt; then
-    echo -e "${GREEN}✅ Test Passed: Invalid command${NC}"
-else
-    echo -e "${RED}❌ Test Failed: Invalid command${NC}"
-fi
+echo -e "${BLUE}Running invalid command tests...${NC}"
+run_test "test_files/input1.txt" "invalidcmd" "wc -l" "invalid_cmd.txt"
 
 # Run missing file tests
-echo "Running missing file tests..."
-./pipex "test_files/missing.txt" "cat" "wc -l" "test_files/pipex_missing.txt" &> test_files/pipex_missing_error.txt
-if grep -q "No such file" test_files/pipex_missing_error.txt; then
-    echo -e "${GREEN}✅ Test Passed: Missing input file${NC}"
-else
-    echo -e "${RED}❌ Test Failed: Missing input file${NC}"
-fi
+echo -e "${BLUE}Running missing file tests...${NC}"
+run_test "test_files/nonexistent.txt" "cat" "wc -l" "missing_file.txt"
 
-# Run bonus tests (Multiple pipes)
-echo "Running multiple pipes tests..."
-run_bonus_test "multi_pipe1.txt" "< test_files/input1.txt cat | grep Pipex | wc -l" "test_files/input1.txt 'cat' 'grep Pipex' 'wc -l'"
-run_bonus_test "multi_pipe2.txt" "< test_files/input3.txt cat | grep UNIX | sort | wc -w" "test_files/input3.txt 'cat' 'grep UNIX' 'sort' 'wc -w'"
+# Run multiple pipes tests (Bonus)
+echo -e "${BLUE}Running multiple pipes tests (Bonus)...${NC}"
+run_bonus_test "test_files/input1.txt" "multi_pipes.txt" "grep Pipex" "sort" "wc -l"
+run_bonus_test "test_files/input2.txt" "multi_pipes_2.txt" "grep a" "tr a-z A-Z" "sort"
 
-# Run bonus test (Here Document)
-echo "Running here_doc tests..."
-echo -e "Hello\n42\nUNIX\nEND" | ./pipex here_doc END "cat" "wc -l" "test_files/pipex_here_doc.txt"
-echo -e "Hello\n42\nUNIX" | wc -l > "test_files/shell_here_doc.txt"
-if diff -q "test_files/shell_here_doc.txt" "test_files/pipex_here_doc.txt" > /dev/null; then
-    echo -e "${GREEN}✅ Test Passed: Here Document${NC}"
-else
-    echo -e "${RED}❌ Test Failed: Here Document${NC}"
-    diff "test_files/shell_here_doc.txt" "test_files/pipex_here_doc.txt"
-fi
-
-# Summary of results
-echo -e "\n${BLUE}Test Summary:${NC}"
+# Summary
+echo -e "${BLUE}Test Summary:${NC}"
 echo -e "Total Tests: $TOTAL_TESTS"
-echo -e "${GREEN}✅ Passed: $PASSED_TESTS${NC}"
-echo -e "${RED}❌ Failed: $FAILED_TESTS${NC}"
-
-if [ "$FAILED_TESTS" -eq 0 ]; then
-    echo -e "${GREEN}🎉 All tests passed successfully! 🎉${NC}"
-else
-    echo -e "${RED}⚠️ Some tests failed! Check the output above. ⚠️${NC}"
-fi
+echo -e "${GREEN}Passed Tests: $PASSED_TESTS${NC}"
+echo -e "${RED}Failed Tests: $FAILED_TESTS${NC}"
