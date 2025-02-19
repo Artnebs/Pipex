@@ -1,9 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/19 15:20:32 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/19 17:26:27 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
-char **parse_command(char *cmd_str)
+char	**parse_command(char *cmd_str)
 {
-	char **cmd_args;
+	char	**cmd_args;
 
+	if (!cmd_str || ft_strlen(cmd_str) == 0)
+	{
+		ft_putstr_fd("Error: empty command\n", 2);
+		exit(EXIT_FAILURE);
+	}
 	cmd_args = ft_split(cmd_str, ' ');
 	if (cmd_args == NULL)
 	{
@@ -13,12 +30,14 @@ char **parse_command(char *cmd_str)
 	return (cmd_args);
 }
 
-char *find_command_path(char *cmd_name)
+char	*find_command_path(char *cmd_name)
 {
-	char **paths;
-	char *full_path;
-	int idx;
+	char	**paths;
+	char	*full_path;
+	int		idx;
 
+	if (!cmd_name || ft_strlen(cmd_name) == 0)
+		return (NULL);
 	paths = ft_split(getenv("PATH"), ':');
 	if (paths == NULL)
 		return (NULL);
@@ -33,7 +52,7 @@ char *find_command_path(char *cmd_name)
 			return (full_path);
 		}
 		free(full_path);
-		idx = idx + 1;
+		idx++;
 	}
 	ft_free_split(paths);
 	return (NULL);

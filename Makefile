@@ -6,15 +6,14 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/09 17:20:13 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/14 11:29:37 by anebbou          ###   ########.fr        #
+#    Updated: 2025/02/19 17:04:28 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # ------------------------------ VARIABLES ----------------------------------- #
 
-# Program Names
+# Program Name
 NAME            = pipex
-NAME_BONUS      = pipex_bonus
 
 # Directories
 SRC_DIR         = srcs
@@ -30,49 +29,37 @@ CC              = gcc
 CFLAGS          = -Wall -Wextra -Werror
 INCLUDES        = -Iincludes -I$(LIBFT_DIR)/includes
 
-# Mandatory Sources
-SRCS_MAND       = $(SRC_DIR)/main.c \
-                  $(SRC_DIR)/parsing.c \
-                  $(SRC_DIR)/execute.c \
-                  $(SRC_DIR)/helpers.c \
-                  $(SRC_DIR)/helpers2.c \
-                  $(SRC_DIR)/redirection.c
+# Sources
+SRCS            = $(SRC_DIR)/main.c \
+				  $(SRC_DIR)/parsing.c \
+				  $(SRC_DIR)/execute.c \
+				  $(SRC_DIR)/helpers.c \
+				  $(SRC_DIR)/helpers2.c \
+				  $(SRC_DIR)/redirection.c \
+				  $(SRC_DIR)/main_helpers.c \
+				  $(BONUS_DIR)/here_doc_bonus.c \
+				  $(BONUS_DIR)/here_doc_helpers.c \
+				  $(BONUS_DIR)/multiple_pipes_bonus.c \
+				  $(BONUS_DIR)/multiple_pipes_helpers_bonus.c
 
-OBJS_MAND       = $(SRCS_MAND:.c=.o)
-
-# Bonus Sources (Only compiled in bonus mode)
-SRCS_BONUS      = $(BONUS_DIR)/here_doc_bonus.c \
-                  $(BONUS_DIR)/multiple_pipes_bonus.c \
-				  $(BONUS_DIR)/multiple_pipes_helpers_bonus.c \
-
-OBJS_BONUS      = $(SRCS_BONUS:.c=.o)
+OBJS            = $(SRCS:.c=.o)
 
 # ------------------------------ TARGETS ------------------------------------- #
 
-# Default Rule: build mandatory
+# Default Rule: build the program
 all: $(LIBFT) $(NAME)
 
-# Build the main executable from mandatory object files
-$(NAME): $(OBJS_MAND)
+# Build the main executable from object files
+$(NAME): $(OBJS)
 	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS_MAND) -L$(LIBFT_DIR) -lft -o $(NAME)
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -L$(LIBFT_DIR) -lft -o $(NAME)
 	@echo "Build complete!"
 
-# Bonus Rule: build both mandatory and bonus separately
-bonus: $(LIBFT) $(NAME_BONUS)
-
-$(NAME_BONUS): $(OBJS_MAND) $(OBJS_BONUS)
-	@echo "Linking $(NAME_BONUS) (with bonus)..."
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS_MAND) $(OBJS_BONUS) \
-		-L$(LIBFT_DIR) -lft -o $(NAME_BONUS)
-	@echo "Build complete (with bonus)!"
-
-# Compile object files for mandatory
+# Compile object files
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Compile object files for bonus
 $(BONUS_DIR)/%.o: $(BONUS_DIR)/%.c
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -89,15 +76,15 @@ $(LIBFT):
 # Clean object files
 clean:
 	@echo "Cleaning object files..."
-	rm -f $(OBJS_MAND) $(OBJS_BONUS)
+	rm -f $(OBJS)
 	@if [ -d "$(LIBFT_DIR)" ]; then \
 		$(MAKE) -C $(LIBFT_DIR) clean; \
 	fi
 
 # Full clean, removing program and additional files
 fclean: clean
-	@echo "Removing $(NAME) and $(NAME_BONUS) binaries..."
-	rm -f $(NAME) $(NAME_BONUS)
+	@echo "Removing $(NAME) binary..."
+	rm -f $(NAME)
 	@if [ -d "test_files" ]; then \
 		echo "Removing test_files/ directory..."; \
 		rm -rf test_files; \
@@ -109,4 +96,4 @@ fclean: clean
 re: fclean all
 
 # Ensure makefile targets are not interpreted as files
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re

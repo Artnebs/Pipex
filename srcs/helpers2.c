@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   helpers2.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/19 15:20:19 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/19 16:43:09 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
-void close_all_pipes(int **pipes_array, int count)
+void	close_all_pipes(int **pipes_array, int count)
 {
-	int index;
+	int	index;
 
 	index = 0;
 	while (index < count)
@@ -13,36 +25,24 @@ void close_all_pipes(int **pipes_array, int count)
 	}
 }
 
-/* allocate_each_pipe is a helper for allocate_pipes */
-void allocate_each_pipe(int **pipes_array, int count)
+void	allocate_each_pipe(int **pipes_array, int count)
 {
-	int index;
+	int	index;
 
 	index = 0;
 	while (index < count)
 	{
 		pipes_array[index] = malloc(sizeof(int) * 2);
 		if (pipes_array[index] == NULL)
-			return;
+			return ;
 		create_pipe(pipes_array[index]);
 		index = index + 1;
 	}
 }
 
-int **allocate_pipes(int count)
+void	free_pipes(int **pipes_array, int count)
 {
-	int **pipes_array;
-
-	pipes_array = malloc(sizeof(int *) * (count - 1));
-	if (pipes_array == NULL)
-		return (NULL);
-	allocate_each_pipe(pipes_array, count - 1);
-	return (pipes_array);
-}
-
-void free_pipes(int **pipes_array, int count)
-{
-	int index;
+	int	index;
 
 	index = 0;
 	while (index < count - 1)
@@ -53,11 +53,11 @@ void free_pipes(int **pipes_array, int count)
 	free(pipes_array);
 }
 
-char *ft_strjoin_free(char *s1, const char *s2)
+char	*ft_strjoin_free(char *s1, const char *s2)
 {
-	char *joined_str;
-	size_t len1;
-	size_t len2;
+	char	*joined_str;
+	size_t	len1;
+	size_t	len2;
 
 	if (s1 == NULL || s2 == NULL)
 		return (NULL);
