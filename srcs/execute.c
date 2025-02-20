@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:33:44 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 15:51:52 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/20 16:34:30 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ void	execute_pipeline(char **command1, char **command2, char **envp)
 		execute_second_command(command2, pipe_fd, envp);
 	close_pipes(pipe_fd);
 	wait_for_children(child1, child2);
+	ft_free_split(command1);
+	ft_free_split(command2);
 }
 
 void	wait_for_children(pid_t child1, pid_t child2)

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
+#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/09 17:20:13 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/19 17:04:28 by anebbou          ###   ########.fr        #
+#    Updated: 2025/02/19 16:28:26 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,13 +36,16 @@ SRCS            = $(SRC_DIR)/main.c \
 				  $(SRC_DIR)/helpers.c \
 				  $(SRC_DIR)/helpers2.c \
 				  $(SRC_DIR)/redirection.c \
-				  $(SRC_DIR)/main_helpers.c \
-				  $(BONUS_DIR)/here_doc_bonus.c \
+				  $(SRC_DIR)/main_helpers.c
+
+BONUS_SRCS      = $(BONUS_DIR)/here_doc_bonus.c \
 				  $(BONUS_DIR)/here_doc_helpers.c \
 				  $(BONUS_DIR)/multiple_pipes_bonus.c \
-				  $(BONUS_DIR)/multiple_pipes_helpers_bonus.c
+				  $(BONUS_DIR)/multiple_pipes_helpers_bonus.c \
+				  $(BONUS_DIR)/main_helpers_bonus.c
 
 OBJS            = $(SRCS:.c=.o)
+BONUS_OBJS      = $(BONUS_SRCS:.c=.o)
 
 # ------------------------------ TARGETS ------------------------------------- #
 
@@ -54,6 +57,12 @@ $(NAME): $(OBJS)
 	@echo "Linking $(NAME)..."
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -L$(LIBFT_DIR) -lft -o $(NAME)
 	@echo "Build complete!"
+
+# Bonus target: re-links with the bonus object set
+bonus: $(LIBFT) $(OBJS) $(BONUS_OBJS)
+	@echo "Linking (BONUS) $(NAME)..."
+	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(BONUS_OBJS) -L$(LIBFT_DIR) -lft -o $(NAME)
+	@echo "Bonus build complete!"
 
 # Compile object files
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
@@ -76,7 +85,7 @@ $(LIBFT):
 # Clean object files
 clean:
 	@echo "Cleaning object files..."
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(BONUS_OBJS)
 	@if [ -d "$(LIBFT_DIR)" ]; then \
 		$(MAKE) -C $(LIBFT_DIR) clean; \
 	fi

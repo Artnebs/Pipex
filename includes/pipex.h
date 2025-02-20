@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:27:12 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:03:58 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/20 17:09:38 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,13 @@ void	execute_pipeline(char **command1, char **command2, char **envp);
 void	execute_command(char **command_args, char **envp);
 void	wait_for_children(pid_t child1, pid_t child2);
 
-/* multiple_pipes.c */
+/* multiple_pipes_bonus.c */
 void	execute_multiple_pipes(t_multi_pipes multi);
 
 /* here_doc_bonus.c */
 void	handle_here_doc(t_here_doc doc);
+void	read_stdin_loop(int write_fd, char *limiter);
+void	child_write_here_doc(int *pipefd, t_here_doc doc);
 
 /* here_doc_helpers.c */
 void	create_pipe_or_exit(int *pipefd);
@@ -102,5 +104,8 @@ void	create_pipes_helper(int pipes[][2], int count);
 
 /* main_helpers.c */
 int		handle_args(int argc, char **argv, char **envp);
+
+/* main_helpers_bonus.c */
+int		handle_args_bonus(int argc, char **argv, char **envp);
 
 #endif

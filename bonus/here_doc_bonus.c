@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:19:25 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:02:30 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/20 16:41:06 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	handle_here_doc(t_here_doc doc)
 {
 	int		pipefd[2];
 	pid_t	child_pid;
+	int		fd_out;
 
 	create_pipe_or_exit(pipefd);
 	fork_or_exit(&child_pid);
@@ -51,7 +52,14 @@ void	handle_here_doc(t_here_doc doc)
 	close(pipefd[1]);
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[0]);
-	redirect_output_or_exit(doc.outfile);
+	fd_out = open(doc.outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd_out < 0)
+	{
+		perror("Error opening output file");
+		exit(EXIT_FAILURE);
+	}
+	dup2(fd_out, STDOUT_FILENO);
+	close(fd_out);
 	execute_command(parse_command(doc.cmds[0]), doc.envp);
 	waitpid(child_pid, NULL, 0);
 }
