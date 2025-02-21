@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:03:22 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/21 11:56:48 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	redirect_output_or_exit(char *outfile)
 	close(fd_out);
 }
 
-void	create_here_doc_tempfile(int read_fd, char *temp_filename)
+void	create_here_doc_tempfile(int _fd, char *temp_filename)
 {
 	int		fd_temp;
 	char	buffer[1024];
@@ -62,7 +62,7 @@ void	create_here_doc_tempfile(int read_fd, char *temp_filename)
 		perror("Error opening temporary file");
 		exit(EXIT_FAILURE);
 	}
-	bytes = read(read_fd, buffer, sizeof(buffer));
+	bytes = read(_fd, buffer, sizeof(buffer));
 	while (bytes > 0)
 	{
 		if (write(fd_temp, buffer, bytes) != bytes)
@@ -71,7 +71,7 @@ void	create_here_doc_tempfile(int read_fd, char *temp_filename)
 			close(fd_temp);
 			exit(EXIT_FAILURE);
 		}
-		bytes = read(read_fd, buffer, sizeof(buffer));
+		bytes = read(_fd, buffer, sizeof(buffer));
 	}
 	close(fd_temp);
 }

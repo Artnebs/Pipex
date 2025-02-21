@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:27:12 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/20 17:09:38 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/21 11:52:12 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,14 +76,14 @@ void	execute_multiple_pipes(t_multi_pipes multi);
 
 /* here_doc_bonus.c */
 void	handle_here_doc(t_here_doc doc);
-void	read_stdin_loop(int write_fd, char *limiter);
+void	_stdin_loop(int write_fd, char *limiter);
 void	child_write_here_doc(int *pipefd, t_here_doc doc);
 
 /* here_doc_helpers.c */
 void	create_pipe_or_exit(int *pipefd);
 void	fork_or_exit(pid_t *child_pid);
 void	redirect_output_or_exit(char *outfile);
-void	create_here_doc_tempfile(int read_fd, char *temp_filename);
+void	create_here_doc_tempfile(int _fd, char *temp_filename);
 
 /* helpers.c */
 void	close_pipes(int pipe_fd[2]);

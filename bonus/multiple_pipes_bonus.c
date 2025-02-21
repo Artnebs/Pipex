@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:19:34 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 16:39:40 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/21 11:54:55 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,12 @@ void	execute_multiple_pipes(t_multi_pipes multi)
 	pid_t	*pids;
 	int		pipe_count;
 
+	if (multi.cmd_count == 2)
+	{
+		execute_pipeline(parse_command(multi.cmds[0]),
+			parse_command(multi.cmds[1]), multi.envp);
+		return ;
+	}
 	pipe_count = multi.cmd_count - 1;
 	pids = allocate_pids(multi.cmd_count);
 	pipes = allocate_pipes(pipe_count);
