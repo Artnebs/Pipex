@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:03:22 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/26 18:31:15 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	redirect_output_or_exit(char *outfile)
 {
 	int	fd_out;
 
-	fd_out = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	fd_out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd_out < 0)
 	{
 		perror("Error opening output file");
@@ -50,7 +50,7 @@ void	redirect_output_or_exit(char *outfile)
 	close(fd_out);
 }
 
-void	create_here_doc_tempfile(int read_fd, char *temp_filename)
+void	create_here_doc_tempfile(int fd_in, char *temp_filename)
 {
 	int		fd_temp;
 	char	buffer[1024];
@@ -62,16 +62,16 @@ void	create_here_doc_tempfile(int read_fd, char *temp_filename)
 		perror("Error opening temporary file");
 		exit(EXIT_FAILURE);
 	}
-	bytes = read(read_fd, buffer, sizeof(buffer));
+	bytes = read(fd_in, buffer, sizeof(buffer));
 	while (bytes > 0)
 	{
 		if (write(fd_temp, buffer, bytes) != bytes)
 		{
-			perror("Error writing to temporary file");
+			perror("Error writing to temp file");
 			close(fd_temp);
 			exit(EXIT_FAILURE);
 		}
-		bytes = read(read_fd, buffer, sizeof(buffer));
+		bytes = read(fd_in, buffer, sizeof(buffer));
 	}
 	close(fd_temp);
 }

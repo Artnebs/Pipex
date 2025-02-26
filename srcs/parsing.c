@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:20:32 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/20 16:52:11 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/26 18:37:45 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	**parse_command(char *cmd_str)
 		exit(EXIT_FAILURE);
 	}
 	cmd_args = ft_split(cmd_str, ' ');
-	if (cmd_args == NULL)
+	if (!cmd_args)
 	{
 		perror("Error: Command parsing failed");
 		exit(EXIT_FAILURE);
@@ -30,11 +30,11 @@ char	**parse_command(char *cmd_str)
 	return (cmd_args);
 }
 
-char *find_command_path(char *cmd_name)
+char	*find_command_path(char *cmd_name)
 {
-	char **paths;
-	char *full_path;
-	int idx;
+	char	**paths;
+	char	*full_path;
+	int		idx;
 
 	if (!cmd_name || !*cmd_name)
 		return (NULL);

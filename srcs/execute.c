@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:33:44 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/20 16:34:30 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/26 18:34:25 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	execute_command(char **command_args, char **envp)
 	char	*cmd_path;
 
 	cmd_path = find_command_path(command_args[0]);
-	if (cmd_path == NULL)
+	if (!cmd_path)
 	{
 		ft_putstr_fd("Error: Command not found: ", 2);
 		ft_putstr_fd(command_args[0], 2);
@@ -49,7 +49,7 @@ static void	execute_second_command(char **cmd2, int pipe_fd[2], char **envp)
 	execute_command(cmd2, envp);
 }
 
-void	execute_pipeline(char **command1, char **command2, char **envp)
+void	execute_pipeline(char **cmd1, char **cmd2, char **envp)
 {
 	int		pipe_fd[2];
 	pid_t	child1;
@@ -58,14 +58,14 @@ void	execute_pipeline(char **command1, char **command2, char **envp)
 	create_pipe(pipe_fd);
 	create_fork(&child1);
 	if (child1 == 0)
-		execute_first_command(command1, pipe_fd, envp);
+		execute_first_command(cmd1, pipe_fd, envp);
 	create_fork(&child2);
 	if (child2 == 0)
-		execute_second_command(command2, pipe_fd, envp);
+		execute_second_command(cmd2, pipe_fd, envp);
 	close_pipes(pipe_fd);
 	wait_for_children(child1, child2);
-	ft_free_split(command1);
-	ft_free_split(command2);
+	ft_free_split(cmd1);
+	ft_free_split(cmd2);
 }
 
 void	wait_for_children(pid_t child1, pid_t child2)

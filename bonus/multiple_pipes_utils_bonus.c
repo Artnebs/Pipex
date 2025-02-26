@@ -1,42 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   multiple_pipes_utils_bonus.c                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/19 15:20:25 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/26 18:41:42 by anebbou          ###   ########.fr       */
+/*   Created: 2025/02/28 10:00:00 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/26 18:33:36 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	validate_environment(char **envp)
+char	***cache_commands(char **cmds, int count)
 {
-	int	i;
+	char	***cache;
+	int		i;
 
-	if (!envp || !envp[0])
+	cache = malloc(sizeof(char **) * count);
+	if (!cache)
 	{
-		ft_putstr_fd("Error: Missing environment variables.\n", 2);
+		perror("Memory allocation for parsed commands failed");
 		exit(EXIT_FAILURE);
 	}
 	i = 0;
-	while (envp[i])
+	while (i < count)
 	{
-		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-			return ;
+		cache[i] = parse_command(cmds[i]);
 		i++;
 	}
-	ft_putstr_fd("Error: PATH variable is missing in the environment.\n", 2);
-	exit(EXIT_FAILURE);
+	return (cache);
 }
 
-int	main(int argc, char **argv, char **envp)
+void	free_cached_commands(char ***cache, int count)
 {
-	int	ret;
+	int	i;
 
-	validate_environment(envp);
-	ret = handle_args(argc, argv, envp);
-	return (ret);
+	i = 0;
+	while (i < count)
+	{
+		ft_free_split(cache[i]);
+		i++;
+	}
+	free(cache);
 }

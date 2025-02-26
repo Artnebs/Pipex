@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 15:20:04 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 15:52:15 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/26 18:35:23 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,7 @@ void	close_pipes(int pipe_fd[2])
 
 void	create_pipe(int pipe_fd[2])
 {
-	int	ret;
-
-	ret = pipe(pipe_fd);
-	if (ret < 0)
+	if (pipe(pipe_fd) < 0)
 	{
 		perror("Pipe creation failed");
 		exit(EXIT_FAILURE);
